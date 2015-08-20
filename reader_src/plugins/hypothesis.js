@@ -1,3 +1,22 @@
+// Epub.js to do:
+// * Put in icons for the buttons.
+// 		* Open sidebar
+// 		* Highlight
+// 		* Comment
+// * Resize reading area when sidebar opens.
+// * Make sure annotations update correctly when changing pages.
+// 
+// Epub.js bonus:
+// * Low Priority: Get search working again.
+// * Bonus: Make new heatmap that shows progress through the chapter and comments. 
+// 	
+// Hypothes.is to do: 
+// * Allow a configuration file to control the following
+// 		* Kill the adder
+// * Fire event when sidebar is toggled?
+// * Fire event when in editing mode?
+//   
+
 EPUBJS.reader.plugins.HypothesisController = function(Book) {
 	var reader = this;
 	var book = reader.book;
@@ -37,17 +56,16 @@ EPUBJS.reader.plugins.HypothesisController = function(Book) {
 	};
 	
 	var attach = function(){
-		// window.annotator.frame.appendTo(element);
+		window.annotator.frame.appendTo(element);
 
-		// window.annotator.subscribe('annotationEditorShown', function () {
-		// 	console.log('annotationEditorShown');
-		// 	showAnnotations(true);
-		// });
+		window.addEventListener('hypothesisSidebarOpen', function () {
+			showAnnotations(true);
+			window.annotator.setVisibleHighlights(true);
+		});
 		
-		// window.annotator.subscribe('annotationViewerShown', function () {
-		// 	console.log('annotationViewerShown');
-		// 	showAnnotations(true);
-		// });
+		window.addEventListener('hypothesisSidebarClosed', function () {
+			showAnnotations(false);
+		});
 
 		window.annotator.subscribe("annotationsLoaded", function(e){
 			var _$ = reader.book.renderer.render.window.annotator.constructor.$; 
@@ -61,20 +79,7 @@ EPUBJS.reader.plugins.HypothesisController = function(Book) {
 				
 				window.annotator.updateAnnotation([$this.data('annotation')]);
 				
-				// $scope.$apply(function(){
-				// 	$scope.single = true;
-				// 	$scope.noUpdate = true;
-				// });
-				
 			});
-		});
-		
-		$(".h-icon-comment").on("click", function () {
-			if ($main.hasClass("single")) {
-				showAnnotations(false);
-			} else {
-				showAnnotations(true);
-			}
 		});
 		
 		reader.book.on("renderer:locationChanged", function(){
@@ -89,13 +94,11 @@ EPUBJS.reader.plugins.HypothesisController = function(Book) {
 
 		if(single) {
 			$main.addClass("single");
-			window.annotator.setVisibleHighlights(true);
 		} else {
 			$main.removeClass("single");
-			window.annotator.setVisibleHighlights(false);
 		}
 		
-		$main.one("transitionend", function(){
+		$main.on("transitionend", function(){
 			book.gotoCfi(currentPosition);
 		});
 		

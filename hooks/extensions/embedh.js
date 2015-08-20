@@ -1,5 +1,5 @@
 window.hypothesisConfig = function () {
 	return {
-		constructor: Annotator.Guest
+		constructor: Annotator.Guest,
 	};
 };
